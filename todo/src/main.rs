@@ -99,9 +99,21 @@ fn main() {
             io::stdin()
                 .read_line(&mut inp2)
                 .expect("Failed to read line");
-            ifinp2 >=0 && inp2 < display.subtasks.len(){
-                display = display.subtasks[inp2];
+            if let Ok(index) = inp2.trim().parse::<usize>() {
+                if index >= 0 && index < display.subtasks.len() {
+                    display = &display.subtasks[index];
+                } else {
+                    println!("Index out of bounds.");
+                }
+            } else {
+                println!("Please enter a valid number.");
             }
+        }
+        if inp.contains('3'){
+            display = &tasks;
+        }
+        if inp.contains('4'){
+            println!()
         }
         if inp.contains('8'){
             break;
