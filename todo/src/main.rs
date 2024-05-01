@@ -113,7 +113,19 @@ fn main() {
             display = &tasks;
         }
         if inp.contains('4'){
-            println!()
+            println!("Write a name:");
+            io::stdin()
+                .read_line(&mut inp2)
+                .expect("Failed to read line");
+            let newName = &inp2;
+            inp2.clear();
+            println!("Write a description:");
+            io::stdin()
+                .read_line(&mut inp2)
+                .expect("Failed to read line");
+            let newDescription = &inp2;
+            inp2.clear();
+            display.subtasks.push(Task::new(newName.to_string(), newDescription.to_string(), Utc::now(), None, TaskStatusType::Todo));
         }
         if inp.contains('8'){
             break;
