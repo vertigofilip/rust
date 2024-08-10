@@ -1,4 +1,4 @@
-import { Button, VerticalBox } from "std-widgets.slint";
+import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
 
 export component AppWindow inherits Window {
     in-out property <int> counter: 42;
@@ -6,10 +6,42 @@ export component AppWindow inherits Window {
     callback request-decrise-value();
     callback request-set-value-100();
     VerticalBox {
-        Text {
-            text: "Counter: \{root.counter}";
-        }
+        HorizontalBox {
+            Path {
+                width: 100px;
+                height: 100px;
+                stroke: blue;
+                stroke-width: 1px;
+            
+                MoveTo {
+                    x: 0;
+                    y: 0;
+                }
+                LineTo {
+                    x: 0;
+                    y: 100;
+                }
+                ArcTo {
+                    radius-x: 1;
+                    radius-y: 1;
+                    x: 100;
+                    y: 100;
+                }
+                LineTo {
+                    x: 100;
+                    y: 0;
+                }
+                Close {
+                }
+            }
 
+            Text {
+                text: "Counter: \{root.counter}";
+                font-size: 50px;
+                font-family: "Open Sans";
+                color: blue;
+            }
+        }
         Button {
             text: "Increase value";
             clicked => {
@@ -29,6 +61,18 @@ export component AppWindow inherits Window {
             clicked => {
                 root.request-set-value-100();
             }
+        }
+
+        Image {
+            source: @image-url("C:\\Users\\Filip\\Documents\\GitHub\\rust\\window\\pepe.jpg");
+            height: 200px;
+            // image-fit default is `contain` when in layout, preserving aspect ratio
+        }
+
+        TextInput {
+            text: "Replace me with a name";
+            selection-background-color: green;
+            single-line: true;
         }
     }
 }
