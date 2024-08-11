@@ -1,10 +1,13 @@
-import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { Button, VerticalBox, HorizontalBox, CheckBox, Slider, StandardListView, ComboBox } from "std-widgets.slint";
 
 export component AppWindow inherits Window {
     in-out property <int> counter: 42;
     callback request-increase-value();
     callback request-decrise-value();
     callback request-set-value-100();
+    callback update_counter(int, bool);
+    in-out property <bool> use_slider: false;
+    in-out property <int> value: 10;
     VerticalBox {
         HorizontalBox {
             Path {
@@ -64,7 +67,7 @@ export component AppWindow inherits Window {
         }
 
         Image {
-            source: @image-url("C:\\Users\\Filip\\Documents\\GitHub\\rust\\window\\pepe.jpg");
+            source: @image-url("D:\\programowanie\\rust\\window\\pepe.jpg");
             height: 200px;
             // image-fit default is `contain` when in layout, preserving aspect ratio
         }
@@ -73,6 +76,36 @@ export component AppWindow inherits Window {
             text: "Replace me with a name";
             selection-background-color: green;
             single-line: true;
+        }
+
+        CheckBox {
+            text: "use slider";
+            checked: root.use_slider; 
+        }
+
+        Slider {
+            width: 200px;
+            value: 42;
+            changed => {
+                root.update_counter(root.value, root.use_slider); // Pass both the slider value and use_slider state
+            }
+        }
+
+        HorizontalBox {
+            StandardListView {
+                width: 150px;
+                height: 150px;
+                model: [ { text: "Blue"}, { text: "Red" }, { text: "Green" },
+                    { text: "Yellow" }, { text: "Black"}, { text: "White"},
+                    { text: "Magenta" }, { text: "Cyan" },
+                ];
+            }
+
+            ComboBox {
+                width: 300px;
+                model: ["first", "second", "third"];
+                current-value: "first";
+            }
         }
     }
 }
