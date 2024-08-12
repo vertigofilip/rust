@@ -5,25 +5,25 @@ fn main() -> Result<(), slint::PlatformError> {
 
     ui.on_request_increase_value({
         let ui_handle = ui.as_weak();
-        move || {
+        move |use_slider: bool| {
             let ui = ui_handle.unwrap();
-            ui.set_counter(ui.get_counter() + 1);
+            if use_slider == false {ui.set_counter(ui.get_counter() + 1);}
         }
     });
 
     ui.on_request_decrise_value({
         let ui_handle = ui.as_weak();
-        move || {
+        move |use_slider: bool| {
             let ui = ui_handle.unwrap();
-            ui.set_counter(ui.get_counter() - 1);
+            if use_slider == false {ui.set_counter(ui.get_counter() - 1);}
         }
     });
 
     ui.on_request_set_value_100({
         let ui_handle = ui.as_weak();
-        move || {
+        move |use_slider: bool| {
             let ui = ui_handle.unwrap();
-            ui.set_counter(100);
+            if use_slider == false {ui.set_counter(100);}
         }
     });
 

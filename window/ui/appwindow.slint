@@ -2,18 +2,20 @@ import { Button, VerticalBox, HorizontalBox, CheckBox, Slider, StandardListView,
 
 export component AppWindow inherits Window {
     in-out property <int> counter: 42;
-    callback request-increase-value();
-    callback request-decrise-value();
-    callback request-set-value-100();
+    callback request-increase-value(bool);
+    callback request-decrise-value(bool);
+    callback request-set-value-100(bool);
     callback update_counter(int, bool);
+    callback change_colour(int);
     in-out property <bool> use_slider: false;
     in-out property <int> value: 10;
+    in-out property <brush> colour: blue;
     VerticalBox {
         HorizontalBox {
             Path {
                 width: 100px;
                 height: 100px;
-                stroke: blue;
+                stroke: colour;
                 stroke-width: 1px;
             
                 MoveTo {
@@ -42,27 +44,27 @@ export component AppWindow inherits Window {
                 text: "Counter: \{root.counter}";
                 font-size: 50px;
                 font-family: "Open Sans";
-                color: blue;
+                color: colour;
             }
         }
         Button {
             text: "Increase value";
             clicked => {
-                root.request-increase-value();
+                root.request-increase-value(use_slider);
             }
         }
 
         Button {
             text: "Decrise value";
             clicked => {
-                root.request-decrise-value();
+                root.request-decrise-value(use_slider);
             }
         }
 
         Button {
             text: "Set value to 100";
             clicked => {
-                root.request-set-value-100();
+                root.request-set-value-100(use_slider);
             }
         }
 
@@ -81,13 +83,23 @@ export component AppWindow inherits Window {
         CheckBox {
             text: "use slider";
             checked: root.use_slider; 
+            toggled => {
+                if root.use_slider == true {
+                    root.use_slider = false;
+                }
+                else {
+                    root.use_slider = true;
+                }
+                root.counter = root.value;
+            }
         }
 
         Slider {
             width: 200px;
             value: 42;
-            changed => {
-                root.update_counter(root.value, root.use_slider); // Pass both the slider value and use_slider state
+            changed (value) => {
+                root.update_counter(value, root.use_slider);
+                root.value = value;
             }
         }
 
@@ -99,6 +111,7 @@ export component AppWindow inherits Window {
                     { text: "Yellow" }, { text: "Black"}, { text: "White"},
                     { text: "Magenta" }, { text: "Cyan" },
                 ];
+                current-item: 0;
             }
 
             ComboBox {
