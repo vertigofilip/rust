@@ -3,10 +3,16 @@ use std::{io};
 use std::process::Command;
 
 fn clear_screen() {
-    Command::new("cmd")
-            .args(&["/C", "cls"])
-            .status()
-            .unwrap();
+    if cfg!(target_os = "windows") {
+        Command::new("cmd")
+                .args(&["/C", "cls"])
+                .status()
+                .unwrap();
+    } else {
+        Command::new("clear")
+                .status()
+                .unwrap();
+    }
 }
 
 enum TaskStatusType {
@@ -28,7 +34,7 @@ struct Task {
 
 impl Task {
     // Constructor-like method
-    fn newBase() -> Self {
+    fn new_base() -> Self {
         Task {
             name: "ToDo list".to_string(),
             description: "My ToDo list".to_string(),
@@ -49,71 +55,90 @@ impl Task {
             subtasks: Vec::new(),  // Initializing subtasks as empty
         }
     }
-    fn displayStatus(&self) {
+    fn display_status(&self) {
         match self.task_status {
-            TaskStatusType::Todo => println!("Todo"),
-            TaskStatusType::InProgress => println!("In Progress"),
-            TaskStatusType::Done => println!("Done"),
-            TaskStatusType::PendingDecision => println!("Pending Decision"),
-            TaskStatusType::Canceled => println!("Canceled"),
+            TaskStatusType::Todo => println!("□ Todo"),
+            TaskStatusType::InProgress => println!("▣ Doing"),
+            TaskStatusType::Done => println!("■ Done"),
+            TaskStatusType::PendingDecision => println!("◩ Undecided"),
+            TaskStatusType::Canceled => println!("✕ Canceled"),
+        }
+    }
+    fn display_in_line(tsk: &Task) {
+        let status = match tsk.task_status {
+            TaskStatusType::Todo => "□",
+            TaskStatusType::InProgress => "▣",
+            TaskStatusType::Done => "■",
+            TaskStatusType::PendingDecision => "◩",
+            TaskStatusType::Canceled => "✕",
+        };
+        print!("{} Name: {}|", status, tsk.name);
+        print!(" Task due: ");
+        match &tsk.due_date {
+            Some(date) => print!("{}|", date.format("%Y-%m-%d %H:%M:%S")),
+            None => print!("none|"),
+        }
+        print!(" created at: {}|", tsk.creation_date.format("%Y-%m-%d %H:%M:%S"));
+        println!(" {} subtasks|", tsk.subtasks.len())
+    }
+    fn display_in_line_details(tsk: &Task) {
+        let status = match tsk.task_status {
+            TaskStatusType::Todo => "□ Todo",
+            TaskStatusType::InProgress => "▣ Doing",
+            TaskStatusType::Done => "■ Done",
+            TaskStatusType::PendingDecision => "◩ Undecided",
+            TaskStatusType::Canceled => "✕ Canceled",
+        };
+        print!("{} Name: {}|", status, tsk.name);
+        print!(" Task due: ");
+        match &tsk.due_date {
+            Some(date) => print!("{}|", date.format("%Y-%m-%d %H:%M:%S")),
+            None => print!("none|"),
+        }
+        print!(" created at: {}|", tsk.creation_date.format("%Y-%m-%d %H:%M:%S"));
+        println!(" {} subtasks|", tsk.subtasks.len())
+    }
+    fn display_details(tsk: &Task) {
+        let status = match tsk.task_status {
+            TaskStatusType::Todo => "□ Todo",
+            TaskStatusType::InProgress => "▣ Doing",
+            TaskStatusType::Done => "■ Done",
+            TaskStatusType::PendingDecision => "◩ Undecided",
+            TaskStatusType::Canceled => "✕ Canceled",
+        };
+        println!("{}", status);
+        println!("Name: {}", tsk.name);
+        println!("Description {}", tsk.description);
+        print!(" Task due: ");
+        match &tsk.due_date {
+            Some(date) => print!("{}|", date.format("%Y-%m-%d %H:%M:%S")),
+            None => println!("none|"),
+        }
+        println!(" created at: {}|", tsk.creation_date.format("%Y-%m-%d %H:%M:%S"));
+        println!(" {} subtasks|", tsk.subtasks.len())
+    }
+    fn display_line_recursively(tsk: &Task, spaces: u16){
+        for i in 0..spaces{
+            if i == spaces - 1{print!("├");}
+            else {print!("|");}
+        }
+        if spaces == 0 {Task::display_details(tsk);}
+        else {Task::display_in_line(tsk);}
+        for t in &tsk.subtasks{
+            Task::display_line_recursively(&t, spaces+1);
         }
     }
 }
-fn displayInLine(tsk: &Task) {
-    let status = match tsk.task_status {
-        TaskStatusType::Todo => "□ Todo",
-        TaskStatusType::InProgress => "▣ Doing",
-        TaskStatusType::Done => "■ Done",
-        TaskStatusType::PendingDecision => "◩ Undecided",
-        TaskStatusType::Canceled => "✕ Canceled",
-    };
-    print!("{} Name: {}|", status, tsk.name);
-    print!(" Task due: ");
-    match &tsk.due_date {
-        Some(date) => print!("{}|", date.format("%Y-%m-%d %H:%M:%S")),
-        None => print!("none|"),
-    }
-    print!(" created at: {}|", tsk.creation_date.format("%Y-%m-%d %H:%M:%S"));
-    println!(" {} subtasks|", tsk.subtasks.len())
-}
-fn displayDetails(tsk: &Task) {
-    let status = match tsk.task_status {
-        TaskStatusType::Todo => "□ Todo",
-        TaskStatusType::InProgress => "▣ Doing",
-        TaskStatusType::Done => "■ Done",
-        TaskStatusType::PendingDecision => "◩ Undecided",
-        TaskStatusType::Canceled => "✕ Canceled",
-    };
-    println!("{}", status);
-    println!("Name: {}", tsk.name);
-    println!("Description {}", tsk.name);
-    print!(" Task due: ");
-    match &tsk.due_date {
-        Some(date) => print!("{}|", date.format("%Y-%m-%d %H:%M:%S")),
-        None => println!("none|"),
-    }
-    println!(" created at: {}|", tsk.creation_date.format("%Y-%m-%d %H:%M:%S"));
-    println!(" {} subtasks|", tsk.subtasks.len())
-}
-fn displayLineRecursively(tsk: &Task, spaces: u16){
-    for i in 0..spaces{
-        if i == spaces - 1{print!("├");}
-        else {print!("|");}
-    }
-    if spaces == 0 {displayDetails(tsk);}
-    else {displayInLine(tsk);}
-    for t in &tsk.subtasks{
-        displayLineRecursively(&t, spaces+1);
-    }
-}
+
+
 fn main() {
-    let mut tasks: Task = Task::newBase();
+    let mut tasks: Task = Task::new_base();
     let mut inp = String::new();
     let mut inp2 = String::new();
     let mut display = &mut tasks;
     loop{
         clear_screen();
-        displayLineRecursively(&display, 0);
+        Task::display_line_recursively(&display, 0);
         println!("Select Option");
         println!("1 - display all");
         println!("2 - go to");
@@ -137,7 +162,7 @@ fn main() {
                 .read_line(&mut inp2)
                 .expect("Failed to read line");
             if let Ok(index) = inp2.trim().parse::<usize>() {
-                if index >= 0 && index < display.subtasks.len() {
+                if index < display.subtasks.len() {
                     display = &mut display.subtasks[index];
                 } else {
                     println!("Index out of bounds.");
@@ -154,15 +179,15 @@ fn main() {
             io::stdin()
                 .read_line(&mut inp2)
                 .expect("Failed to read line");
-            let newName = inp2.clone();
+            let new_name = inp2.clone();
             inp2.clear();
             println!("Write a description:");
             io::stdin()
                 .read_line(&mut inp2)
                 .expect("Failed to read line");
-            let newDescription = inp2.clone();
+            let new_description = inp2.clone();
             inp2.clear();
-            display.subtasks.push(Task::new(newName.to_string(), newDescription.to_string(), Utc::now(), None, TaskStatusType::Todo));
+            display.subtasks.push(Task::new(new_name.to_string(), new_description.to_string(), Utc::now(), None, TaskStatusType::Todo));
         }
         if inp.contains('5'){
             println!("Select number of task to delete");
@@ -170,8 +195,8 @@ fn main() {
                 .read_line(&mut inp2)
                 .expect("Failed to read line");
             if let Ok(index) = inp2.trim().parse::<usize>() {
-                if index >= 0 && index < display.subtasks.len() {
-                    display = &mut display.subtasks[index];
+                if index < display.subtasks.len() {
+                    display.subtasks.remove(index);
                 } else {
                     println!("Index out of bounds.");
                 }
@@ -193,7 +218,7 @@ fn main() {
             display.description = inp2.clone().trim().to_string();
             inp2.clear();
             print!("Change task status ");
-            display.displayStatus();
+            display.display_status();
             println!(" to, or leave empty:");
             println!("1 - □ Todo");
             println!("2 - ▣ Doing");

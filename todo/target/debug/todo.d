@@ -1,1 +1,1 @@
-D:\programowanie\rust\todo\target\debug\todo.exe: D:\programowanie\rust\todo\src\main.rs
+/home/filip/rust\ code/rust/todo/target/debug/todo: /home/filip/rust\ code/rust/todo/src/main.rs
